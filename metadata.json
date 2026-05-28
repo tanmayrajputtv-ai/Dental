@@ -1,0 +1,6 @@
+{
+  "name": "Rajput Dental Clinic",
+  "description": "Experience premium, painless dental care with Dr. Tanmay Rajput in Awadhpuri, Bhopal. Book appointments, view membership plans, and track your oral health online.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
