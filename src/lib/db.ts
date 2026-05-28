@@ -118,16 +118,17 @@ export class ClinicDatabase {
     const mockId = `PT-${randomDigit}`;
     const mockPatientId = `PAT-${randomDigit}99`;
     
-    const newUser: UserProfile = {
+    const newUser: UserProfile & { password?: string } = {
       ...profile,
       id: mockId,
       patient_id: mockPatientId,
       created_at: new Date().toISOString(),
-      role: 'patient'
+      role: 'patient',
+      password: password
     };
 
     // Always perform a dual-write to local storage first, ensuring patients appear instantly in our lists
-    const users = await this.getUsers();
+    const users = await this.getUsers() as Array<UserProfile & { password?: string }>;
     const existing = users.find(u => u.email.toLowerCase() === profile.email.toLowerCase());
     if (existing) {
       throw new Error('An account with this email already exists.');
@@ -204,7 +205,7 @@ export class ClinicDatabase {
 
     if (this.isConfigured && this.client && password) {
       const { data, error } = await this.client.auth.signInWithPassword({
-        email,
+        email: normalizedEmail,
         password,
       });
 
@@ -230,11 +231,16 @@ export class ClinicDatabase {
     }
 
     // Local DB lookup (no actual password checking except simple strings since it's sandbox)
-    const users = await this.getUsers();
-    const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    const users = await this.getUsers() as Array<UserProfile & { password?: string }>;
+    const foundUser = users.find(u => u.email.toLowerCase() === normalizedEmail);
     
     if (!foundUser) {
       throw new Error('No user found with the given email address.');
+    }
+
+    // Verify correct local password if stored during registration
+    if (foundUser.password && foundUser.password !== normalizedPassword) {
+      throw new Error('Incorrect password. Please verify and try again.');
     }
     
     return { profile: foundUser };

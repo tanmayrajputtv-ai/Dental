@@ -164,6 +164,9 @@ export default function AuthPage({ onLoginSuccess, onNavigate, onShowToast }: Au
         treatment: chosenService
       });
 
+      // Automatically authenticate the patient instantly so they do not need to re-login if they refresh/navigate
+      onLoginSuccess(rProfile);
+
       onShowToast('🎉 Patient Profile registered & Initial Appointment scheduled!', true);
     } catch (err: any) {
       onShowToast(err.message || 'Error occurred during patient record creation.', false);
